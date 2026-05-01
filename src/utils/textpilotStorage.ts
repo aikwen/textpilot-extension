@@ -18,26 +18,55 @@ function clampWidth(width: number, minWidth: number, maxWidth: number): number {
 }
 
 function canUseChromeStorage(): boolean {
-  return (
-    typeof chrome !== "undefined" &&
-    Boolean(chrome.storage) &&
-    Boolean(chrome.storage.local)
-  );
+  try {
+    return (
+      typeof chrome !== "undefined" &&
+      Boolean(chrome.runtime?.id) &&
+      Boolean(chrome.storage) &&
+      Boolean(chrome.storage.local)
+    );
+  } catch {
+    return false;
+  }
 }
 
 function chromeStorageGet<T>(key: string): Promise<T | undefined> {
   return new Promise((resolve) => {
-    chrome.storage.local.get(key, (result) => {
-      resolve(result[key] as T | undefined);
-    });
+    try {
+      chrome.storage.local.get(key, (result) => {
+        const error = chrome.runtime.lastError;
+
+        if (error) {
+          console.warn("[TextPilot] chrome.storage.local.get failed:", error.message);
+          resolve(undefined);
+          return;
+        }
+
+        resolve(result[key] as T | undefined);
+      });
+    } catch (error) {
+      console.warn("[TextPilot] chrome.storage.local.get context invalidated:", error);
+      resolve(undefined);
+    }
   });
 }
 
 function chromeStorageSet(key: string, value: unknown): Promise<void> {
   return new Promise((resolve) => {
-    chrome.storage.local.set({ [key]: value }, () => {
+    try {
+      chrome.storage.local.set({ [key]: value }, () => {
+        const error = chrome.runtime.lastError;
+
+        if (error) {
+          console.warn("[TextPilot] chrome.storage.local.set failed:", error.message);
+        }
+
+        resolve();
+      });
+    } catch (error) {
+      console.warn("[TextPilot] chrome.storage.local.set context invalidated:", error);
       resolve();
-    });
+    }
   });
 }
 

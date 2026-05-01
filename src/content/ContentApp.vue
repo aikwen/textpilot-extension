@@ -100,6 +100,8 @@ function isEditableElement(target: EventTarget | null): target is HTMLElement {
       "submit",
       "reset",
       "hidden",
+      "password",
+      "number",
     ]);
   
     if (blockedTypes.has(type)) {
@@ -116,8 +118,6 @@ function isEditableElement(target: EventTarget | null): target is HTMLElement {
       "tel",
       "url",
       "search",
-      "number",
-      "password",
     ]);
   
     return editableTypes.has(type) && !target.disabled && !target.readOnly;
@@ -242,8 +242,33 @@ function focusAndMoveCursorToEnd(
 ): void {
   element.focus();
 
-  const end = element.value.length;
-  element.setSelectionRange(end, end);
+  if (element instanceof HTMLTextAreaElement) {
+    const end = element.value.length;
+    element.setSelectionRange(end, end);
+    return;
+  }
+
+  if (!canSetSelectionRange(element)) {
+    return;
+  }
+
+  try {
+    const end = element.value.length;
+    element.setSelectionRange(end, end);
+  } catch (error) {
+    console.warn("[TextPilot] setSelectionRange failed:", error);
+  }
+}
+
+function canSetSelectionRange(input: HTMLInputElement): boolean {
+  const supportedTypes = new Set([
+    "text",
+    "search",
+    "url",
+    "tel",
+  ]);
+
+  return supportedTypes.has(input.type.toLowerCase());
 }
 
 function dispatchEditableEvents(

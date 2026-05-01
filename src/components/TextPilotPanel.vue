@@ -242,30 +242,7 @@ const listEl = ref<HTMLElement | null>(null);
 const searchKeyword = ref("");
 
 const defaultItems: SnippetItem[] = [
-  {
-    id: "1",
-    title: "姓名",
-    content: "张三",
-  },
-  {
-    id: "2",
-    title: "本科学校",
-    content: "门口沟大学",
-  },
-  {
-    id: "3",
-    title:
-      "ababababaabababababababababababababababababababababababaabababababababababababababababababababababbababababab",
-    content:
-      "ababababaabababababababababababababababababababababababaabababababababababababababababababababababbababababab",
-  },
-  {
-    id: "4",
-    title:
-      "你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好",
-    content:
-      "你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好你好",
-  },
+
 ];
 
 const items = ref<SnippetItem[]>(defaultItems);
