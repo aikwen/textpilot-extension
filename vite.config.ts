@@ -17,6 +17,7 @@ export default defineConfig(({ command }) => {
       rollupOptions: {
         input: {
           content: "src/content/content.ts",
+          popup: "popup.html",
         },
         output: {
           entryFileNames: "assets/[name].js",

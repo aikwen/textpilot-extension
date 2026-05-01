@@ -24,6 +24,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import TextPilotPanel from "../components/TextPilotPanel.vue";
+import { loadTextPilotEnabled } from "../utils/textpilotStorage";
 
 const snippetsReloadKey = ref(0);
 
@@ -34,6 +35,7 @@ const activeEditable = ref<HTMLElement | null>(null);
 
 const panelLeft = ref(0);
 const panelTop = ref(0);
+let showRequestId = 0;
 
 const viewportPadding = 12;
 const gap = 8;
@@ -126,6 +128,23 @@ function isEditableElement(target: EventTarget | null): target is HTMLElement {
   return target.isContentEditable;
 }
 
+async function tryShowPanel(target: HTMLElement): Promise<void> {
+  const requestId = ++showRequestId;
+
+  const enabled = await loadTextPilotEnabled();
+
+  if (requestId !== showRequestId) {
+    return;
+  }
+
+  if (!enabled) {
+    hidePanel();
+    return;
+  }
+
+  showPanel(target);
+}
+
 function showPanel(target: HTMLElement): void {
   activeEditable.value = target;
   visible.value = true;
@@ -138,6 +157,12 @@ function showPanel(target: HTMLElement): void {
 }
 
 function hidePanel(): void {
+  showRequestId += 1;
+
+  if (!visible.value && !activeEditable.value) {
+    return;
+  }
+
   visible.value = false;
   activeEditable.value = null;
 }
@@ -306,7 +331,7 @@ function handleFocusIn(event: FocusEvent): void {
     return;
   }
 
-  showPanel(target);
+  void tryShowPanel(target);
 }
 
 function handlePointerDown(event: PointerEvent): void {
@@ -323,7 +348,7 @@ function handlePointerDown(event: PointerEvent): void {
   const target = event.target;
 
   if (isEditableElement(target)) {
-    showPanel(target);
+    void tryShowPanel(target);
     return;
   }
 

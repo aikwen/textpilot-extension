@@ -6,6 +6,7 @@ export type SnippetItem = {
 
 const PANEL_WIDTH_STORAGE_KEY = "textpilot.panelWidth";
 const SNIPPETS_STORAGE_KEY = "textpilot.snippets";
+const ENABLED_STORAGE_KEY = "textpilot.enabled";
 
 type PanelWidthOptions = {
   defaultWidth: number;
@@ -111,6 +112,36 @@ export async function savePanelWidth(
 
   window.localStorage.setItem(PANEL_WIDTH_STORAGE_KEY, String(nextWidth));
 }
+
+export async function loadTextPilotEnabled(): Promise<boolean> {
+  if (canUseChromeStorage()) {
+    const enabled = await chromeStorageGet<boolean>(ENABLED_STORAGE_KEY);
+
+    if (typeof enabled !== "boolean") {
+      return true;
+    }
+
+    return enabled;
+  }
+
+  const raw = window.localStorage.getItem(ENABLED_STORAGE_KEY);
+
+  if (raw === null) {
+    return true;
+  }
+
+  return raw === "true";
+}
+
+export async function saveTextPilotEnabled(enabled: boolean): Promise<void> {
+  if (canUseChromeStorage()) {
+    await chromeStorageSet(ENABLED_STORAGE_KEY, enabled);
+    return;
+  }
+
+  window.localStorage.setItem(ENABLED_STORAGE_KEY, String(enabled));
+}
+
 
 export async function loadSnippetItems(
   defaultItems: SnippetItem[],
