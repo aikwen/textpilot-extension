@@ -12,7 +12,7 @@
           v-model="searchKeyword"
           type="search"
           class="grow"
-          placeholder="搜索片段..."
+          placeholder="Search snippets...."
         />
       </label>
     </div>
@@ -633,7 +633,7 @@ watch(
 onMounted(() => {
   void loadPanelWidthOnce();
   void reloadSnippetItems();
-  
+
   document.addEventListener("pointerdown", handleDocumentPointerDown);
   document.addEventListener("keydown", handleDocumentKeydown);
 });
